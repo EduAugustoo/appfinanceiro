@@ -1,0 +1,28 @@
+{
+  "despesas": [
+    {
+      "id": 1,
+      "pessoa": "Hilnara",
+      "nome": "Vivo",
+      "valor": 200
+    },
+    {
+      "id": 2,
+      "pessoa": "Hilnara",
+      "nome": "Condomínio",
+      "valor": 650
+    },
+    {
+      "nome": "Prestação",
+      "pessoa": "Eduardo",
+      "valor": 2100,
+      "id": 3
+    },
+    {
+      "nome": "Condomínio",
+      "pessoa": "Hilnara",
+      "valor": 669,
+      "id": 4
+    }
+  ]
+}
