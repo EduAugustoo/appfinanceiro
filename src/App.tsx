@@ -1,3 +1,4 @@
+import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClientProvider } from "react-query";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 
@@ -6,7 +7,7 @@ import { Login } from "./components/Login";
 import { PrivateRoute } from "./components/PrivateRoute";
 import { useAuth } from "./hooks/useAuth";
 import { queryClient } from "./services/queryClient";
-import { GlobalStyle } from "./styles/global";
+import { theme } from "./styles/theme";
 
 export default function App(): JSX.Element {
   const { signed } = useAuth();
@@ -14,13 +15,14 @@ export default function App(): JSX.Element {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <Switch>
-          <Route path="/login" exact>
-            {signed ? <Redirect to="/" /> : <Login />}
-          </Route>
-          <PrivateRoute path="/" exact component={Dashboard} />
-        </Switch>
-        <GlobalStyle />
+        <ChakraProvider theme={theme}>
+          <Switch>
+            <Route path="/login" exact>
+              {signed ? <Redirect to="/" /> : <Login />}
+            </Route>
+            <PrivateRoute path="/" exact component={Dashboard} />
+          </Switch>
+        </ChakraProvider>
       </QueryClientProvider>
     </BrowserRouter>
   );

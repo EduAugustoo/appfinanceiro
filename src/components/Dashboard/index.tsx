@@ -2,6 +2,7 @@ import { useState } from "react";
 import Modal from "react-modal";
 
 import { ExpensesProvider } from "../../hooks/useExpenses";
+import { IExpense } from "../../types/types";
 import ExpensesTable from "../ExpensesTable";
 import Header from "../Header";
 import NewExpenseModal from "../NewExpenseModal";
@@ -9,23 +10,26 @@ import NewExpenseModal from "../NewExpenseModal";
 Modal.setAppElement("#root");
 
 export default function Dashboard(): JSX.Element {
-  const [isNewExpenseModalOpen, setIsNewExpenseModalOpen] = useState(false);
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  const [expense, setExpense] = useState<IExpense | null>(null);
 
-  function handleOpenNewExpenseModal() {
-    setIsNewExpenseModalOpen(true);
+  function handleOpenExpenseModal(expense: IExpense | null) {
+    setIsExpenseModalOpen(true);
+    setExpense(expense);
   }
 
-  function handleCloseNewExpenseModal() {
-    setIsNewExpenseModalOpen(false);
+  function handleCloseExpenseModal() {
+    setIsExpenseModalOpen(false);
   }
 
   return (
     <ExpensesProvider>
-      <Header onOpenAddExpenseModal={handleOpenNewExpenseModal} />
-      <ExpensesTable />
+      <Header onOpenAddExpenseModal={handleOpenExpenseModal} />
+      <ExpensesTable onOpenEditExpenseModal={handleOpenExpenseModal} />
       <NewExpenseModal
-        isOpen={isNewExpenseModalOpen}
-        onRequestClose={handleCloseNewExpenseModal}
+        isOpen={isExpenseModalOpen}
+        onRequestClose={handleCloseExpenseModal}
+        expense={expense}
       />
     </ExpensesProvider>
   );
