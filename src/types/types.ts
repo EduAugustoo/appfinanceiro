@@ -9,6 +9,7 @@ export interface IExpense {
 export interface IUser {
   id: string;
   name: string;
+  __movements__?: IExpense[];
   username: string;
   password: string;
 }

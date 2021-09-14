@@ -102,7 +102,9 @@
         "allowForLoopAfterthoughts": true
       }
     ],
-    "react/jsx-props-no-spreading": "off"
+    "react/jsx-props-no-spreading": "off",
+    "no-underscore-dangle": "off",
+    "no-param-reassign": "off"
   },
   "settings": {
     "import/resolver": {

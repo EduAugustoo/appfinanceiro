@@ -1,4 +1,12 @@
-import { useState, createContext, useContext, ReactNode } from "react";
+import Cookies from "js-cookie";
+import jwtDecode from "jwt-decode";
+import {
+  useState,
+  createContext,
+  useContext,
+  ReactNode,
+  useEffect,
+} from "react";
 
 import * as auth from "../services/auth";
 import { IUser } from "../types/types";
@@ -20,23 +28,31 @@ interface IAuthContextData {
 const AuthContext = createContext<IAuthContextData>({} as IAuthContextData);
 
 export function AuthProvider({ children }: IAuthProviderProps): JSX.Element {
-  const [user, setUser] = useState<IAuthUser | null>(() => {
-    const storagedUser = localStorage.getItem("@appfin:user");
-    if (storagedUser) {
-      return JSON.parse(storagedUser);
+  const [user, setUser] = useState<IAuthUser | null>(null);
+
+  useEffect(() => {
+    const decodedToken = Cookies.get("appfin.token");
+    if (decodedToken) {
+      const { id, name, username } = jwtDecode(decodedToken) as IAuthUser;
+      setUser({ id, name, username });
+      // api.defaults.headers.Authorization = `Bearer ${decodedToken}`;
+    } else {
+      setUser(null);
     }
-    return null;
-  });
+  }, []);
 
   async function signIn(authUser: IAuthInput): Promise<void> {
-    const response = await auth.signIn(authUser);
-    setUser(response.user);
-    localStorage.setItem("@appfin:token", response.token);
-    localStorage.setItem("@appfin:user", JSON.stringify(response.user));
+    const { token, refreshToken } = await auth.signIn(authUser);
+    const { id, name, username } = jwtDecode(token) as IAuthUser;
+    Cookies.set("appfin.token", token, { path: "/" });
+    Cookies.set("appfin.refreshToken", refreshToken, { path: "/" });
+    setUser({ id, name, username });
+
+    // api.defaults.headers.Authorization = `Bearer ${token}`;
   }
 
-  function signOut(): void {
-    localStorage.clear();
+  async function signOut(): Promise<void> {
+    await auth.signOut();
     setUser(null);
   }
 

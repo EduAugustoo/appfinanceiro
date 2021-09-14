@@ -7,7 +7,7 @@ import {
 } from "react";
 
 import { api } from "../services/api";
-import { IExpense } from "../types/types";
+import { IExpense, IUser } from "../types/types";
 import { useAuth } from "./useAuth";
 
 type IExpenseCreateInput = Omit<IExpense, "id" | "createdAt">;
@@ -19,6 +19,7 @@ interface IExpensesProviderProps {
 
 interface IExpensesContextData {
   expenses: IExpense[];
+  totalExpenses: number;
   createExpense: (expense: IExpenseCreateInput) => Promise<void>;
   editExpense: (expense: IExpenseEditInput) => Promise<void>;
   getExpenses: (id: string) => Promise<void>;
@@ -34,21 +35,34 @@ export function ExpensesProvider({
 }: IExpensesProviderProps): JSX.Element {
   const { user } = useAuth();
   const [expenses, setExpenses] = useState<IExpense[]>([]);
+  const [totalExpenses, setTotalExpenses] = useState<number>(0);
 
   useEffect(() => {
-    api
-      .get(`users/${user?.id}/movements`)
-      .then((response) => setExpenses(response.data));
+    api.get("/users").then(({ data: users }) => {
+      const movements = users.flatMap((user: IUser) => user.__movements__);
+      const totalExpenses = movements.reduce(
+        (acc: number, mov: IExpense) => acc + mov.value,
+        0
+      );
+      setTotalExpenses(totalExpenses);
+    });
+  });
+
+  useEffect(() => {
+    api.get(`users/${user?.id}/movements`).then((response) => {
+      setExpenses(response.data);
+    });
   }, []);
 
   async function createExpense(
     expenseInput: IExpenseCreateInput
   ): Promise<void> {
-    const response = await api.post(`users/${user?.id}/movements`, {
+    const { data } = await api.post(`users/${user?.id}/movements`, {
       ...expenseInput,
     });
-    const expense = response.data;
+    const expense: IExpense = data;
 
+    setTotalExpenses(totalExpenses + expense.value);
     setExpenses([expense, ...expenses]);
   }
 
@@ -75,6 +89,7 @@ export function ExpensesProvider({
     <ExpensesContext.Provider
       value={{
         expenses,
+        totalExpenses,
         createExpense,
         editExpense,
         deleteExpense,

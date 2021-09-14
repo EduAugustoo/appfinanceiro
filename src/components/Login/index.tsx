@@ -30,7 +30,7 @@ export function Login(): JSX.Element {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries("sessions");
+        queryClient.invalidateQueries("auth");
       },
     }
   );

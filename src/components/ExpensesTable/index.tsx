@@ -11,8 +11,16 @@ import {
   Th,
   Tr,
   Td,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogOverlay,
+  Button,
+  AlertDialogHeader,
+  useToast,
 } from "@chakra-ui/react";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { FaTimes, FaPen } from "react-icons/fa";
 
 import { useAuth } from "../../hooks/useAuth";
@@ -33,10 +41,14 @@ type IUserType = Omit<IUser, "password">;
 export default function ExpensesTable({
   onOpenEditExpenseModal,
 }: IExpensesTableProps): JSX.Element {
+  const toast = useToast();
   const { user } = useAuth();
-  const { expenses, deleteExpense, getExpenses } = useExpenses();
+  const cancelRef = useRef(null);
+  const { expenses, totalExpenses, deleteExpense, getExpenses } = useExpenses();
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [expenseId, setExpenseId] = useState<string>("");
   const [users, setUsers] = useState<IUserType[]>([]);
-  const [tableUser, setTableUser] = useState<string>(user?.name as string);
+  const [tableUser, setTableUser] = useState<string>(user?.id as string);
   const [movements, setMovements] = useState<IMovement>({
     expenses: [],
     total: 0,
@@ -44,8 +56,9 @@ export default function ExpensesTable({
 
   useEffect(() => {
     const getUsers = async (): Promise<void> => {
-      const response = await api.get("/users");
-      setUsers(response.data);
+      const { data: users } = await api.get("/users");
+
+      setUsers(users);
     };
     getUsers();
   }, []);
@@ -64,21 +77,43 @@ export default function ExpensesTable({
     setMovements(movement);
   }, [expenses]);
 
-  async function handleDeleteExpense(id: string): Promise<void> {
-    await deleteExpense(id);
+  function handleDeleteExpense(id: string): void {
+    if (user?.id !== tableUser) {
+      toast({
+        title: "Erro",
+        description: "Não é possível excluir a despesa de outro usuário",
+        status: "error",
+        position: "top-right",
+        duration: 9000,
+        isClosable: true,
+      });
+    } else {
+      setExpenseId(id);
+      setIsAlertDialogOpen(true);
+    }
   }
 
   async function handleEditExpense(expense: IExpense): Promise<void> {
-    onOpenEditExpenseModal(expense);
+    if (user?.id !== tableUser) {
+      toast({
+        title: "Erro",
+        description: "Não é possível editar a despesa de outro usuário",
+        status: "error",
+        position: "top-right",
+        duration: 9000,
+        isClosable: true,
+      });
+    } else {
+      onOpenEditExpenseModal(expense);
+    }
   }
 
   async function handleChangeUser(
     event: ChangeEvent<HTMLSelectElement>
   ): Promise<void> {
-    const { selectedIndex } = event.target;
-    const selectedUser = event.target[selectedIndex].textContent as string;
-    setTableUser(selectedUser);
-    await getExpenses(event.target.value);
+    const newTableUser = event.target.value;
+    setTableUser(newTableUser);
+    await getExpenses(newTableUser);
   }
 
   return (
@@ -96,7 +131,7 @@ export default function ExpensesTable({
             fontWeight="700"
             fontSize="2rem"
             _hover={{ filter: "brightness(0.8)", cursor: "pointer" }}
-            defaultValue={tableUser}
+            value={tableUser}
             onChange={handleChangeUser}
           >
             {users.map((user) => (
@@ -159,10 +194,46 @@ export default function ExpensesTable({
                   currency: "BRL",
                 }).format(movements.total)}
               </Td>
+              <Td>{((movements.total / totalExpenses) * 100).toFixed(2)}%</Td>
             </Tr>
           </Tfoot>
         </Table>
       </Box>
+      <AlertDialog
+        isOpen={isAlertDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsAlertDialogOpen(false)}
+        isCentered
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Excluir Despesa
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Deseja realmente excluir a despesa?
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button
+                mr="1rem"
+                colorScheme="red"
+                onClick={async () => {
+                  deleteExpense(expenseId);
+                  setIsAlertDialogOpen(false);
+                }}
+              >
+                Sim
+              </Button>
+              <Button
+                ref={cancelRef}
+                onClick={() => setIsAlertDialogOpen(false)}
+              >
+                Cancelar
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Flex>
   );
 }
