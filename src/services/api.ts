@@ -13,13 +13,14 @@ let failedRequestQueue: IQueue[] = [];
 
 export const api = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL,
-  withCredentials: true,
 });
 
 api.interceptors.request.use(
   (
     config: AxiosRequestConfig
   ): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
+    console.log(config);
+
     const { "appfin.token": token } = parseCookies();
     config.headers.Authorization = token ? `Bearer ${token}` : "";
     return config;
