@@ -19,16 +19,12 @@ const signIn = async (user: IUserInput): Promise<IResponse> => {
 };
 
 const refreshToken = async (): Promise<IResponse> => {
-  const response = await api.post(
-    "auth/session/refreshToken",
-    {},
-    { withCredentials: true }
-  );
+  const response = await api.post("auth/session/refreshToken");
   return response.data;
 };
 
 const signOut = async (): Promise<void> => {
-  await api.post("auth/session/signout", {}, { withCredentials: true });
+  await api.post("auth/session/signout");
   destroyCookie(null, "appfin.token");
   destroyCookie(null, "appfin.refreshToken");
 };
