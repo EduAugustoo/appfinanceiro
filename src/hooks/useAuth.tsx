@@ -1,5 +1,5 @@
-import Cookies from "js-cookie";
 import jwtDecode from "jwt-decode";
+import { setCookie, parseCookies } from "nookies";
 import {
   useState,
   createContext,
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: IAuthProviderProps): JSX.Element {
   const [user, setUser] = useState<IAuthUser | null>(null);
 
   useEffect(() => {
-    const decodedToken = Cookies.get("appfin.token");
+    const { "appfin.token": decodedToken } = parseCookies();
     if (decodedToken) {
       const { id, name, username } = jwtDecode(decodedToken) as IAuthUser;
       setUser({ id, name, username });
@@ -44,11 +44,9 @@ export function AuthProvider({ children }: IAuthProviderProps): JSX.Element {
   async function signIn(authUser: IAuthInput): Promise<void> {
     const { token, refreshToken } = await auth.signIn(authUser);
     const { id, name, username } = jwtDecode(token) as IAuthUser;
-    Cookies.set("appfin.token", token, { path: "/" });
-    Cookies.set("appfin.refreshToken", refreshToken, { path: "/" });
+    setCookie(null, "appfin.token", token, { path: "/" });
+    setCookie(null, "appfin.refreshToken", refreshToken, { path: "/" });
     setUser({ id, name, username });
-
-    // api.defaults.headers.Authorization = `Bearer ${token}`;
   }
 
   async function signOut(): Promise<void> {
