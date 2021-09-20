@@ -48,11 +48,13 @@ export function AuthProvider({ children }: IAuthProviderProps): JSX.Element {
       path: "/",
       secure: true,
       sameSite: "none",
+      domain: "edpinheiro.dev",
     });
     setCookie(null, "appfin.refreshToken", refreshToken, {
       path: "/",
       secure: true,
       sameSite: "none",
+      domain: "edpinheiro.dev",
     });
     setUser({ id, name, username });
   }
