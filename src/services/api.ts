@@ -42,9 +42,15 @@ api.interceptors.response.use(
           auth
             .refreshToken()
             .then(({ token, refreshToken }) => {
-              setCookie(null, "appfin.token", token, { path: "/" });
+              setCookie(null, "appfin.token", token, {
+                path: "/",
+                secure: true,
+                sameSite: "none",
+              });
               setCookie(null, "appfin.refreshToken", refreshToken, {
                 path: "/",
+                secure: true,
+                sameSite: "none",
               });
               failedRequestQueue.forEach((request) => request.onSuccess(token));
               failedRequestQueue = [];

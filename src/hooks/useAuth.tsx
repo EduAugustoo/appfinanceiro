@@ -44,8 +44,16 @@ export function AuthProvider({ children }: IAuthProviderProps): JSX.Element {
   async function signIn(authUser: IAuthInput): Promise<void> {
     const { token, refreshToken } = await auth.signIn(authUser);
     const { id, name, username } = jwtDecode(token) as IAuthUser;
-    setCookie(null, "appfin.token", token, { path: "/" });
-    setCookie(null, "appfin.refreshToken", refreshToken, { path: "/" });
+    setCookie(null, "appfin.token", token, {
+      path: "/",
+      secure: true,
+      sameSite: "none",
+    });
+    setCookie(null, "appfin.refreshToken", refreshToken, {
+      path: "/",
+      secure: true,
+      sameSite: "none",
+    });
     setUser({ id, name, username });
   }
 
