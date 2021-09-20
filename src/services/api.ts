@@ -46,13 +46,11 @@ api.interceptors.response.use(
                 path: "/",
                 secure: true,
                 sameSite: "none",
-                domain: "edpinheiro.dev",
               });
               setCookie(null, "appfin.refreshToken", refreshToken, {
                 path: "/",
                 secure: true,
                 sameSite: "none",
-                domain: "edpinheiro.dev",
               });
               failedRequestQueue.forEach((request) => request.onSuccess(token));
               failedRequestQueue = [];
