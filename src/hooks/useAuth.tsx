@@ -1,5 +1,5 @@
 import jwtDecode from "jwt-decode";
-import { setCookie, parseCookies } from "nookies";
+import { parseCookies } from "nookies";
 import {
   useState,
   createContext,
@@ -35,25 +35,24 @@ export function AuthProvider({ children }: IAuthProviderProps): JSX.Element {
     if (decodedToken) {
       const { id, name, username } = jwtDecode(decodedToken) as IAuthUser;
       setUser({ id, name, username });
-      // api.defaults.headers.Authorization = `Bearer ${decodedToken}`;
     } else {
       setUser(null);
     }
   }, []);
 
   async function signIn(authUser: IAuthInput): Promise<void> {
-    const { token, refreshToken } = await auth.signIn(authUser);
+    const { token } = await auth.signIn(authUser);
     const { id, name, username } = jwtDecode(token) as IAuthUser;
-    setCookie(null, "appfin.token", token, {
-      path: "/",
-      secure: true,
-      sameSite: "none",
-    });
-    setCookie(null, "appfin.refreshToken", refreshToken, {
-      path: "/",
-      secure: true,
-      sameSite: "none",
-    });
+    // setCookie(null, "appfin.token", token, {
+    //   path: "/",
+    //   secure: true,
+    //   sameSite: "none",
+    // });
+    // setCookie(null, "appfin.refreshToken", refreshToken, {
+    //   path: "/",
+    //   secure: true,
+    //   sameSite: "none",
+    // });
     setUser({ id, name, username });
   }
 

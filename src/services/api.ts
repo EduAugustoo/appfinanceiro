@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { setCookie, parseCookies } from "nookies";
+import { parseCookies } from "nookies";
 
 import * as auth from "./auth";
 
@@ -13,6 +13,7 @@ let failedRequestQueue: IQueue[] = [];
 
 export const api = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL,
+  withCredentials: true,
 });
 
 api.interceptors.request.use(
@@ -21,7 +22,6 @@ api.interceptors.request.use(
   ): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
     const { "appfin.token": token } = parseCookies();
     config.headers.Authorization = token ? `Bearer ${token}` : "";
-    config.withCredentials = true;
     return config;
   },
   (error: AxiosError) => {
@@ -41,17 +41,17 @@ api.interceptors.response.use(
 
           auth
             .refreshToken()
-            .then(({ token, refreshToken }) => {
-              setCookie(null, "appfin.token", token, {
-                path: "/",
-                secure: true,
-                sameSite: "none",
-              });
-              setCookie(null, "appfin.refreshToken", refreshToken, {
-                path: "/",
-                secure: true,
-                sameSite: "none",
-              });
+            .then(({ token }) => {
+              // setCookie(null, "appfin.token", token, {
+              //   path: "/",
+              //   secure: true,
+              //   sameSite: "none",
+              // });
+              // setCookie(null, "appfin.refreshToken", refreshToken, {
+              //   path: "/",
+              //   secure: true,
+              //   sameSite: "none",
+              // });
               failedRequestQueue.forEach((request) => request.onSuccess(token));
               failedRequestQueue = [];
             })
