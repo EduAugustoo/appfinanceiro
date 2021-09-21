@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { parseCookies } from "nookies";
+import { setCookie, parseCookies } from "nookies";
 
 import * as auth from "./auth";
 
@@ -41,17 +41,17 @@ api.interceptors.response.use(
 
           auth
             .refreshToken()
-            .then(({ token }) => {
-              // setCookie(null, "appfin.token", token, {
-              //   path: "/",
-              //   secure: true,
-              //   sameSite: "none",
-              // });
-              // setCookie(null, "appfin.refreshToken", refreshToken, {
-              //   path: "/",
-              //   secure: true,
-              //   sameSite: "none",
-              // });
+            .then(({ token, refreshToken }) => {
+              setCookie(null, "appfin.token", token, {
+                path: "/",
+                secure: true,
+                sameSite: "none",
+              });
+              setCookie(null, "appfin.refreshToken", refreshToken, {
+                path: "/",
+                secure: true,
+                sameSite: "none",
+              });
               failedRequestQueue.forEach((request) => request.onSuccess(token));
               failedRequestQueue = [];
             })

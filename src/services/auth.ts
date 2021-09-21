@@ -1,3 +1,5 @@
+import { destroyCookie } from "nookies";
+
 import { IUser } from "../types/types";
 import { api } from "./api";
 
@@ -23,6 +25,8 @@ const refreshToken = async (): Promise<IResponse> => {
 
 const signOut = async (): Promise<void> => {
   await api.post("auth/session/signout");
+  destroyCookie(null, "appfin.token");
+  destroyCookie(null, "appfin.refreshToken");
 };
 
 export { signIn, refreshToken, signOut };
