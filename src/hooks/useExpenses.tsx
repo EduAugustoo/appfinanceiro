@@ -46,7 +46,7 @@ export function ExpensesProvider({
       );
       setTotalExpenses(totalExpenses);
     });
-  });
+  }, []);
 
   useEffect(() => {
     api.get(`users/${user?.id}/movements`).then((response) => {

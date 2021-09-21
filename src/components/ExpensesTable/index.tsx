@@ -66,13 +66,8 @@ export default function ExpensesTable({
   useEffect(() => {
     const movement: IMovement = {
       expenses: [...expenses],
-      total: 0,
+      total: expenses.reduce((acc, expense) => acc + expense.value, 0),
     };
-
-    movement.total = movement.expenses.reduce(
-      (acc, expense) => acc + expense.value,
-      0
-    );
 
     setMovements(movement);
   }, [expenses]);
