@@ -1,4 +1,4 @@
-# Getting Started with Create React App
+# APP Financeiro
 
 Projeto criado com o intuito de auxiliar na divisão de despesas de uma casa: aluguel, conta de luz, internet etc.
 
